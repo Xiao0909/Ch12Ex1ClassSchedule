@@ -6,16 +6,11 @@ namespace ClassSchedule.Controllers
 {
     public class ClassController : Controller
     {
-        private Repository<Class> classes { get; set; }
-        private Repository<Teacher> teachers { get; set; }
-        private Repository<Day> days { get; set; }
+        private ClassScheduleUnitOfWork data { get; set; }
+        public ClassController(ClassScheduleContext ctx) =>
+            data = new ClassScheduleUnitOfWork(ctx);
 
-        public ClassController(ClassScheduleContext ctx)
-        {
-            classes = new Repository<Class>(ctx);
-            teachers = new Repository<Teacher>(ctx);
-            days = new Repository<Day>(ctx);
-        }
+       
 
         public RedirectToActionResult Index() => RedirectToAction("Index", "Home");
 
@@ -37,6 +32,8 @@ namespace ClassSchedule.Controllers
         [HttpPost]
         public IActionResult Add(Class c)
         {
+            var classes = data.Classes;
+            
             if (ModelState.IsValid) {
                 if (c.ClassId == 0)
                     classes.Insert(c);
@@ -62,6 +59,7 @@ namespace ClassSchedule.Controllers
         [HttpPost]
         public RedirectToActionResult Delete(Class c)
         {
+            var classes = data.Classes;
             classes.Delete(c);
             classes.Save();
             return RedirectToAction("Index", "Home");
@@ -70,6 +68,8 @@ namespace ClassSchedule.Controllers
         // private helper methods
         private Class GetClass(int id)
         {
+            var classes = data.Classes;
+
             var classOptions = new QueryOptions<Class> {
                 Includes = "Teacher, Day",
                 Where = c => c.ClassId == id
@@ -81,6 +81,9 @@ namespace ClassSchedule.Controllers
         }
         private void LoadViewBag(string operation)
         {
+            var days = data.Days;
+            var teachers = data.Teachers;
+
             ViewBag.Days = days.List(new QueryOptions<Day> {
                 OrderBy = d => d.DayId
             });
