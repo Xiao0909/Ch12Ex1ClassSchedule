@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ClassSchedule.Models
 {
-    public class ClassScheduleUnitOfWork
+    public class ClassScheduleUnitOfWork : IClassScheduleUnitOfWork
     {
         private ClassScheduleContext context { get; set; }
         public ClassScheduleUnitOfWork(ClassScheduleContext ctx) => context = ctx;
@@ -45,5 +45,11 @@ namespace ClassSchedule.Models
                 return dayData;
             }
         }
+
+        public void Save() => context.SaveChanges();
+    }
+
+    public interface IClassScheduleUnitOfWork
+    {
     }
 }
